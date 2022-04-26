@@ -7,6 +7,8 @@ normalizations of Python expression output.  See the docstring on
 import doctest
 import re
 import math
+import scipy
+import unittest
 
 
 # Much of this code, particularly the parts of floating point handling, is
@@ -294,13 +296,29 @@ class OutputChecker(doctest.OutputChecker):
         # new-style class.
         return self._original_output_checker.output_difference(
             self, want, got, flags)
-
-
+    
+def isclose(a, b, rtol, atol): #Изменение 002
+    if (rtol == 1e-05) and (atol == 1e-08):
+        return numpy.allclose(a, b)
+    else: #перепроверить необходимость и корректность
+        flag = str(numpy.allclose(a, b, rtol, atol, equal_nan=True))
+        if flag[-1] or flag:
+            return True
+        else:
+            return False
+        
+    
 try:
     import numpy
+    print(doctest.testmod(verbose=True)) #Изменение 001
 
+    
     def isclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=True):
+        print(1, a, b, numpy.isclose(a, b, rtol=rtol, atol=atol, equal_nan=equal_nan))
         return numpy.isclose(a, b, rtol=rtol, atol=atol, equal_nan=equal_nan)
 except ImportError:
     def isclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=True):
+        print('!!!')
+        print(2, a, b, abs(a - b) <= atol + rtol * abs(b) or (equal_nan and math.isnan(a) and math.isnan(b)))
         return abs(a - b) <= atol + rtol * abs(b) or (equal_nan and math.isnan(a) and math.isnan(b))
+
